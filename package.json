@@ -1,5 +1,5 @@
 {
-  "name": "generator-fng",
+  "name": "generator-blz",
   "version": "0.1.1",
   "description": "Generate forms-angular applications for the MEAN stack",
   "keywords": [
@@ -21,15 +21,15 @@
   "bugs": "https://github.com/forms-angular/generator-angular-fullstack/issues",
   "author": "Tyler Henkel",
   "contributors" : [{
-    "name":"Mark Chapman",
-    "email":"support@forms-angular.org"
+    "name":"Antoine Pairet",
+    "email":"antoine.pairet@b12-consulting.com"
   },
   {
     "name":"Gulshan Kumar"
   }],
   "repository": {
     "type": "git",
-    "url": "git://github.com/forms-angular/generator-angular-fullstack.git"
+    "url": "git://github.com/b12consulting/generator-angular-fullstack.git"
   },
   "scripts": {
     "test": "grunt test"
