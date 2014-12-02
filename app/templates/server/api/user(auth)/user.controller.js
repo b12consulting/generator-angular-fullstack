@@ -6,96 +6,117 @@ var config = require('../../config/environment');
 var jwt = require('jsonwebtoken');
 
 var validationError = function(res, err) {
-  return res.json(422, err);
+    return res.json(422, err);
 };
 
 /**
  * Get list of users
  * restriction: 'admin'
  */
-exports.index = function(req, res) {
-  User.find({}, '-salt -hashedPassword', function (err, users) {
-    if(err) return res.send(500, err);
-    res.json(200, users);
-  });
+exports.index = function(req, res, next) {
+    User.findQ({}, '-salt -hashedPassword')
+        .then(function(users) {
+            res.json(200, users);
+        })
+        .catch(next)
+        .done();
 };
 
 /**
  * Creates a new user
  */
-exports.create = function (req, res, next) {
-  var newUser = new User(req.body);
-  newUser.provider = 'local';
-  newUser.role = 'user';
-  newUser.save(function(err, user) {
-    if (err) return validationError(res, err);
-    var token = jwt.sign({_id: user._id }, config.secrets.session, { expiresInMinutes: 60*5 });
-    res.json({ token: token });
-  });
+exports.create = function(req, res, next) {
+    var newUser = new User(req.body);
+    newUser.provider = 'local';
+    newUser.role = 'user';
+    newUser.saveQ()
+        .then(function(user) {
+            var token = jwt.sign({
+                _id: user._id
+            }, config.secrets.session, {
+                expiresInMinutes: 60 * 5
+            });
+
+            res.json({
+                token: token
+            });
+        })
+        .catch(next)
+        .done();
 };
 
 /**
  * Get a single user
  */
-exports.show = function (req, res, next) {
-  var userId = req.params.id;
+exports.show = function(req, res, next) {
+    var userId = req.params.id;
 
-  User.findById(userId, function (err, user) {
-    if (err) return next(err);
-    if (!user) return res.send(401);
-    res.json(user.profile);
-  });
+    User.findByIdQ(userId)
+        .then(function(user) {
+            if (!user) return res.send(401);
+            res.json(user.profile);
+        })
+        .catch(next)
+        .done();
 };
 
 /**
  * Deletes a user
  * restriction: 'admin'
  */
-exports.destroy = function(req, res) {
-  User.findByIdAndRemove(req.params.id, function(err, user) {
-    if(err) return res.send(500, err);
-    return res.send(204);
-  });
+exports.destroy = function(req, res, next) {
+    User.findByIdAndRemoveQ(req.params.id)
+        .then(function(user) {
+            return res.send(204);
+        })
+        .catch(next)
+        .done;
 };
 
 /**
  * Change a users password
  */
 exports.changePassword = function(req, res, next) {
-  var userId = req.user._id;
-  var oldPass = String(req.body.oldPassword);
-  var newPass = String(req.body.newPassword);
+    var userId = req.user._id;
+    var oldPass = String(req.body.oldPassword);
+    var newPass = String(req.body.newPassword);
 
-  User.findById(userId, function (err, user) {
-    if(user.authenticate(oldPass)) {
-      user.password = newPass;
-      user.save(function(err) {
-        if (err) return validationError(res, err);
-        res.send(200);
-      });
-    } else {
-      res.send(403);
-    }
-  });
+    User.findByIdQ(userId)
+        .then(function(user) {
+            if (!user.authenticate(oldPass)) {
+                throw new Error(403);
+            }
+
+            user.password = newPass;
+            return user.saveQ();
+        })
+        .then(function() {
+            res.send(200);
+        })
+        .catch(next)
+        .done();
 };
 
 /**
  * Get my info
  */
 exports.me = function(req, res, next) {
-  var userId = req.user._id;
-  User.findOne({
-    _id: userId
-  }, '-salt -hashedPassword', function(err, user) { // don't ever give out the password or salt
-    if (err) return next(err);
-    if (!user) return res.json(401);
-    res.json(user);
-  });
+    var userId = req.user._id;
+    User.findOneQ({
+                _id: userId
+            },
+            '-salt -hashedPassword')
+        .then(function(user) { // don't ever give out the password or salt
+            if (!user) throw new Error(401);
+            res.json(user);
+        })
+        .catch(next)
+        .done();
 };
 
 /**
  * Authentication callback
  */
 exports.authCallback = function(req, res, next) {
-  res.redirect('/');
+    res.redirect('/');
 };
