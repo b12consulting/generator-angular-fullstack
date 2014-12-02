@@ -100,7 +100,7 @@ var AngularFullstackGenerator = yeoman.generators.Base.extend({
 
     this.log('# Client\n');
 
-    this.prompt([/*{
+    this.prompt([{
         type: "list",
         name: "script",
         message: "What would you like to write scripts with?",
@@ -126,7 +126,7 @@ var AngularFullstackGenerator = yeoman.generators.Base.extend({
         message: "What would you like to write stylesheets with?",
         choices: [ "CSS", "Sass", "Less"],
         filter: function( val ) { return val.toLowerCase(); }
-      },*/{
+      },{
       type: "list",
       name: "framework",
       message: "Which CSS framework would you like to use?",
