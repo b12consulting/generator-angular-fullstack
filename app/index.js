@@ -153,10 +153,11 @@ var AngularFullstackGenerator = yeoman.generators.Base.extend({
       }
     ], function (answers) {
         this.filters[answers.framework] = true;
-        this.filters.js = true;
-        this.filters.html = true;
-        this.filters.css = true;
+        this.filters[answers.script] = true;
+        this.filters[answers.markup] = true;
+        this.filters[answers.stylesheet] = true;
         this.filters[answers.router] = true;
+        
         answers.plugins.forEach(function(chosenPlugin) {
           this.filters[chosenPlugin] = true;
           if (!this.filters.jQueryUI) {
